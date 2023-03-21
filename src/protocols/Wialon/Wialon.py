@@ -9,9 +9,10 @@ from time import time, sleep
 from json import load, loads, dumps
 from enum import Enum
 
+# from src.db_worker import get_configuration
 from src.utils import *
-from src.db_worker import *
-from src.db_connect import CONN
+# from src.db_worker import *
+# from src.db_connect import CONN
 from src.logs.log_config import logger
 
 class BLOCK_TYPES(Enum):
@@ -38,7 +39,7 @@ class Wialon:
 	def start(self):
 		logger.info(f'Wialon подключен [{self.addr[0]}:{self.addr[1]}]')
 		Wialon.TRACKERS.add(self)
-		self.db = pymysql.connect(**CONN)
+		# self.db = pymysql.connect(**CONN)
 
 		self.stop = False
 		self.handle_packet()
@@ -80,8 +81,8 @@ class Wialon:
 			packet_size = len(packet)
 			packet, packet_header = self.handle_header(packet)
 
-			if not self.assign:
-				self.assign = get_configuration(self.db, self.NAME, packet_header['uid'])
+			# if not self.assign:
+			# 	# self.assign = get_configuration(self.db, self.NAME, packet_header['uid'])
 
 			if packet_header['packet_size'] != (packet_size-7)//2:
 				logger.error(f"[Wialon] размер принятого пакета не сходится {packet_header['packet_size']}!={(packet_size-6)/2}")
@@ -90,12 +91,12 @@ class Wialon:
 			packet_data = self.handle_data(packet)
 			self.data, insert = self.prepare_data(packet_header, packet_data)
 
-			if insert:
-				count = insert_geo(self.db, self.data, debug=True)
-
-				if count==0:
-					self.success = False
-					logger.error(f"[Wialon] {packet_header['uid']} запись не удалось записать в бд")
+			# if insert:
+			# 	# count = insert_geo(self.db, self.data, debug=True)
+			#
+			# 	# if count==0:
+			# 	# 	self.success = False
+			# 	# 	logger.error(f"[Wialon] {packet_header['uid']} запись не удалось записать в бд")
 
 			if self.success:
 				self.sock.send(b'11')
